@@ -34,8 +34,9 @@ class MyTextView : UITextView {
 
 	var caretReachedTheEndListener: (() -> ())?
 
+	// http://stackoverflow.com/questions/18458257/limit-cursor-movement-in-uitextview/18460854#18460854
 	override func caretRectForPosition(position: UITextPosition!) -> CGRect {
-		if selectedRange.length == 0 && selectedRange.location == count(self.text) {
+		if position == endOfDocument {
 			//resignFirstResponder()
 			caretReachedTheEndListener?()
 		}
