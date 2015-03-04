@@ -10,9 +10,16 @@ import UIKit
 
 class ViewController: UIViewController {
 
+	@IBOutlet weak var view1: MyTextView!
+	@IBOutlet weak var view2: UITextView!
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		// Do any additional setup after loading the view, typically from a nib.
+
+		view1.caretReachedTheEndListener = {
+			view2.becomeFirstResponder()
+		}
 	}
 
 	override func didReceiveMemoryWarning() {
@@ -23,3 +30,15 @@ class ViewController: UIViewController {
 
 }
 
+class MyTextView : UITextView {
+
+	var caretReachedTheEndListener: (() -> ())?
+
+	override func caretRectForPosition(position: UITextPosition!) -> CGRect {
+		if selectedRange.length == 0 && selectedRange.location == count(self.text) {
+			//resignFirstResponder()
+			caretReachedTheEndListener?()
+		}
+		return super.caretRectForPosition(position)
+	}
+}
