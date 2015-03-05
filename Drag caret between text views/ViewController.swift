@@ -8,38 +8,34 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITextViewDelegate {
 
-	@IBOutlet weak var view1: MyTextView!
+	@IBOutlet weak var view1: UITextView!
 	@IBOutlet weak var view2: UITextView!
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		// Do any additional setup after loading the view, typically from a nib.
+		view1.delegate = self
+	}
 
-		view1.caretReachedTheEndListener = {
-			view2.becomeFirstResponder()
+	func textViewDidChangeSelection(textView: UITextView) {
+		if textView.selectedRange.length == 0 && textView.selectedRange.location == count(textView.text){
+			if let loupegesture1 = textView.loupeGesture(), let loupegesture2 = view2.loupeGesture() {
+				view1.removeGestureRecognizer(loupegesture1)
+				view2.addGestureRecognizer(loupegesture1)
+				view2.removeGestureRecognizer(loupegesture2)
+				view1.addGestureRecognizer(loupegesture2)
+				view2.becomeFirstResponder()
+				println("swapped loupe recognisers between text views")
+			}
 		}
 	}
-
-	override func didReceiveMemoryWarning() {
-		super.didReceiveMemoryWarning()
-		// Dispose of any resources that can be recreated.
-	}
-
-
 }
 
-class MyTextView : UITextView {
-
-	var caretReachedTheEndListener: (() -> ())?
-
-	// http://stackoverflow.com/questions/18458257/limit-cursor-movement-in-uitextview/18460854#18460854
-	override func caretRectForPosition(position: UITextPosition!) -> CGRect {
-		if position == endOfDocument {
-			//resignFirstResponder()
-			caretReachedTheEndListener?()
-		}
-		return super.caretRectForPosition(position)
+extension UITextView {
+	func loupeGesture () -> UILongPressGestureRecognizer? {
+		return gestureRecognizers?.filter { (recogniser) in
+			return recogniser.isKindOfClass(NSClassFromString( "UIVariableDelayLoupeGesture"))
+			}.first as? UILongPressGestureRecognizer
 	}
 }
